@@ -72,6 +72,8 @@
 const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db");
+const cloudinary = require("cloudinary").v2;
+const multer = require("multer");
 require("dotenv").config();
 
 const app = express();
@@ -103,9 +105,22 @@ app.use(express.json());
 // Database connection
 connectDB();
 
+// Cloudinary configuration
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// Multer configuration
+const upload = multer({ storage: multer.memoryStorage() });
+
 app.get("/", (req, res) => res.send("Puzzle Backend is running"));
 
 console.log("ENV Variables:", {
+  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME ? "Set" : "Missing",
+  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY ? "Set" : "Missing",
+  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET ? "Set" : "Missing",
   ADMIN_MONGO_URI: process.env.ADMIN_MONGO_URI ? "Set" : "Missing",
 });
 
