@@ -7,13 +7,11 @@ require("dotenv").config();
 
 const app = express();
 
-// CORS configuration (inspired by the first snippet)
+// CORS configuration
 const allowedOrigins = [
   "http://localhost:5173", // Local dev (adjust port if needed)
-  // Add production frontend URLs as needed, e.g.:
-  // "https://your-puzzle-app.vercel.app",
-  "https://puzzle-admin-backend.vercel.app/",
-  // "https://yourdomain.com",
+  "https://puzzle-admin-backend.vercel.app/", // Your backend URL (optional)
+  // Add your frontend URL here, e.g., "https://puzzle-user.vercel.app"
 ];
 app.use(
   cors({
@@ -25,13 +23,12 @@ app.use(
         callback(new Error("Not allowed by CORS"));
       }
     },
-    credentials: true, // If you need to support cookies/auth headers
+    credentials: true, // If you need cookies/auth headers
   })
 );
 
 // Middleware
 app.use(express.json());
-app.use("/uploads", express.static("uploads")); // Serve uploaded files statically (adjust for production)
 
 // Database connection
 connectDB();
@@ -43,8 +40,8 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Multer configuration
-const upload = multer({ dest: "uploads/" }); // Temporary storage for uploads
+// Multer configuration (memory storage for Vercel)
+const upload = multer({ storage: multer.memoryStorage() }); // Use memory instead of disk
 
 // Routes
 app.use("/api/auth", require("./routes/auth"));
@@ -58,7 +55,7 @@ console.log("ENV Variables:", {
   CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME ? "Set" : "Missing",
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY ? "Set" : "Missing",
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET ? "Set" : "Missing",
-  MONGO_URI: process.env.MONGO_URI ? "Set" : "Missing", // Assuming connectDB uses this
+  ADMIN_MONGO_URI: process.env.ADMIN_MONGO_URI ? "Set" : "Missing", // Match your db.js
   PORT: process.env.PORT || "Not set, defaulting to 5000",
 });
 

@@ -1,29 +1,33 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const Puzzle = require('../models/Puzzle');
-const authMiddleware = require('../middleware/auth');
-const cloudinary = require('cloudinary').v2;
+const Puzzle = require("../models/Puzzle");
+const authMiddleware = require("../middleware/auth");
+const cloudinary = require("cloudinary").v2;
 
-// Protected route: Create a new puzzle (requires authentication)
-router.post('/', authMiddleware, async (req, res) => {
+router.use(authMiddleware);
+
+router.post("/", async (req, res) => {
   try {
-    let imageUrl = '';
+    let imageUrl = "";
     if (req.file) {
-      const result = await cloudinary.uploader.upload(req.file.path, {
-        folder: 'puzzles',
-      });
-      imageUrl = result.secure_url;
+      const result = await cloudinary.uploader.upload_stream(
+        { folder: "puzzles" },
+        (error, result) => {
+          if (error) throw error;
+          imageUrl = result.secure_url;
+        }
+      ).end(req.file.buffer); // Use buffer instead of path
     }
 
     const puzzleData = {
       ...req.body,
-      image: imageUrl || req.body.image || '',
+      image: imageUrl || req.body.image || "",
     };
-    if (puzzleData.matchPairs && typeof puzzleData.matchPairs === 'string') {
+    if (puzzleData.matchPairs && typeof puzzleData.matchPairs === "string") {
       puzzleData.matchPairs = JSON.parse(puzzleData.matchPairs);
     }
-    if (puzzleData.mcqOptions && typeof puzzleData.mcqOptions === 'string') {
-      puzzleData.mcqOptions = JSON.parse(puzzleData.mcqOptions);
+    if (puzzleData.mcqOptions && typeof puzzleData.mcqOptions === "string") {
+      puzzleData.mcqOptions = JSON.parse(puzzleData.matchPairs);
     }
 
     const puzzle = new Puzzle(puzzleData);
@@ -34,38 +38,39 @@ router.post('/', authMiddleware, async (req, res) => {
   }
 });
 
-// Protected route: Update a puzzle (requires authentication)
-router.put('/:id', authMiddleware, async (req, res) => {
+router.put("/:id", async (req, res) => {
   try {
     let imageUrl = req.body.image;
     if (req.file) {
-      const result = await cloudinary.uploader.upload(req.file.path, {
-        folder: 'puzzles',
-      });
-      imageUrl = result.secure_url;
+      const result = await cloudinary.uploader.upload_stream(
+        { folder: "puzzles" },
+        (error, result) => {
+          if (error) throw error;
+          imageUrl = result.secure_url;
+        }
+      ).end(req.file.buffer); // Use buffer instead of path
     }
 
     const puzzleData = {
       ...req.body,
-      image: imageUrl || '',
+      image: imageUrl || "",
     };
-    if (puzzleData.matchPairs && typeof puzzleData.matchPairs === 'string') {
+    if (puzzleData.matchPairs && typeof puzzleData.matchPairs === "string") {
       puzzleData.matchPairs = JSON.parse(puzzleData.matchPairs);
     }
-    if (puzzleData.mcqOptions && typeof puzzleData.mcqOptions === 'string') {
+    if (puzzleData.mcqOptions && typeof puzzleData.mcqOptions === "string") {
       puzzleData.mcqOptions = JSON.parse(puzzleData.mcqOptions);
     }
 
     const puzzle = await Puzzle.findByIdAndUpdate(req.params.id, puzzleData, { new: true });
-    if (!puzzle) return res.status(404).json({ error: 'Puzzle not found' });
+    if (!puzzle) return res.status(404).json({ error: "Puzzle not found" });
     res.json(puzzle);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
 
-// Public route: Get puzzles (no authentication required)
-router.get('/', async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const { type, puzzleRange } = req.query;
     const query = {};
@@ -78,12 +83,11 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Protected route: Delete a puzzle (requires authentication)
-router.delete('/:id', authMiddleware, async (req, res) => {
+router.delete("/:id", async (req, res) => {
   try {
     const puzzle = await Puzzle.findByIdAndDelete(req.params.id);
-    if (!puzzle) return res.status(404).json({ error: 'Puzzle not found' });
-    res.json({ message: 'Puzzle deleted' });
+    if (!puzzle) return res.status(404).json({ error: "Puzzle not found" });
+    res.json({ message: "Puzzle deleted" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
