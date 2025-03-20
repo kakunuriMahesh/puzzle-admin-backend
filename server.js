@@ -70,9 +70,31 @@
 // TODO: fix 500 error one by one 
 
 const express = require("express");
+const cors = require("cors");
 require("dotenv").config();
 
 const app = express();
+
+// CORS configuration
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "https://puzzle-admin-backend.vercel.app/",
+  "https://puzzle-user.vercel.app/"
+];
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.log("Blocked origin:", origin);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
 
 app.get("/", (req, res) => res.send("Puzzle Backend is running"));
 
