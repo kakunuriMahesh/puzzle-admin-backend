@@ -9,9 +9,9 @@ const app = express();
 
 // CORS configuration
 const allowedOrigins = [
-  "http://localhost:5173", // Local dev (adjust port if needed)
-  "https://puzzle-admin-backend.vercel.app/", // Your backend URL (optional)
-  // Add your frontend URL here, e.g., "https://puzzle-user.vercel.app"
+  "http://localhost:5173",
+  "https://puzzle-admin-backend.vercel.app/",
+  // Add your frontend URL here
 ];
 app.use(
   cors({
@@ -19,11 +19,11 @@ app.use(
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        console.log("Blocked origin:", origin); // Debug log
+        console.log("Blocked origin:", origin);
         callback(new Error("Not allowed by CORS"));
       }
     },
-    credentials: true, // If you need cookies/auth headers
+    credentials: true,
   })
 );
 
@@ -40,26 +40,25 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Multer configuration (memory storage for Vercel)
-const upload = multer({ storage: multer.memoryStorage() }); // Use memory instead of disk
+// Multer configuration
+const upload = multer({ storage: multer.memoryStorage() });
 
 // Routes
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/puzzles", upload.single("image"), require("./routes/puzzles"));
 
-// Health check endpoint
+// Root route
 app.get("/", (req, res) => res.send("Puzzle Backend is running"));
 
-// Environment variable logging for debugging
+// Environment variable logging
 console.log("ENV Variables:", {
   CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME ? "Set" : "Missing",
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY ? "Set" : "Missing",
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET ? "Set" : "Missing",
-  ADMIN_MONGO_URI: process.env.ADMIN_MONGO_URI ? "Set" : "Missing", // Match your db.js
-  PORT: process.env.PORT || "Not set, defaulting to 5000",
+  ADMIN_MONGO_URI: process.env.ADMIN_MONGO_URI ? "Set" : "Missing",
+  NODE_ENV: process.env.NODE_ENV,
 });
 
-// Start server in development
 if (process.env.NODE_ENV !== "production") {
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
