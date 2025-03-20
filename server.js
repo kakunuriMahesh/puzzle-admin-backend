@@ -71,6 +71,7 @@
 
 const express = require("express");
 const cors = require("cors");
+const connectDB = require("./config/db");
 require("dotenv").config();
 
 const app = express();
@@ -95,6 +96,12 @@ app.use(
     credentials: true,
   })
 );
+
+// Middleware
+app.use(express.json());
+
+// Database connection
+connectDB();
 
 app.get("/", (req, res) => res.send("Puzzle Backend is running"));
 
