@@ -12,7 +12,7 @@ const allowedOrigins = [
   "http://localhost:5173", // Local dev (adjust port if needed)
   // Add production frontend URLs as needed, e.g.:
   // "https://your-puzzle-app.vercel.app",
-  "https://puzzle-backend-omega.vercel.app/",
+  "https://puzzle-admin-backend.vercel.app/",
   // "https://yourdomain.com",
 ];
 app.use(
