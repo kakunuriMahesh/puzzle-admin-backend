@@ -105,12 +105,17 @@ app.use(express.json());
 // Database connection
 connectDB();
 
-// Cloudinary configuration
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+// Cloudinary configuration with error handling
+try {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
+  console.log("Cloudinary configured successfully");
+} catch (err) {
+  console.error("Cloudinary configuration failed:", err.message);
+}
 
 // Multer configuration
 const upload = multer({ storage: multer.memoryStorage() });
