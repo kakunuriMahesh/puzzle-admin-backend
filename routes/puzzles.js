@@ -4,17 +4,15 @@ const Puzzle = require('../models/Puzzle');
 const authMiddleware = require('../middleware/auth');
 const cloudinary = require('cloudinary').v2;
 
-router.use(authMiddleware);
-
-router.post('/', async (req, res) => {
+// Protected route: Create a new puzzle (requires authentication)
+router.post('/', authMiddleware, async (req, res) => {
   try {
     let imageUrl = '';
     if (req.file) {
       const result = await cloudinary.uploader.upload(req.file.path, {
-        folder: 'puzzles', // Optional: organize uploads in Cloudinary
+        folder: 'puzzles',
       });
       imageUrl = result.secure_url;
-      // No need to delete file since Vercel doesn’t persist it
     }
 
     const puzzleData = {
@@ -36,8 +34,8 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Update PUT route similarly
-router.put('/:id', async (req, res) => {
+// Protected route: Update a puzzle (requires authentication)
+router.put('/:id', authMiddleware, async (req, res) => {
   try {
     let imageUrl = req.body.image;
     if (req.file) {
@@ -66,6 +64,7 @@ router.put('/:id', async (req, res) => {
   }
 });
 
+// Public route: Get puzzles (no authentication required)
 router.get('/', async (req, res) => {
   try {
     const { type, puzzleRange } = req.query;
@@ -79,7 +78,8 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.delete('/:id', async (req, res) => {
+// Protected route: Delete a puzzle (requires authentication)
+router.delete('/:id', authMiddleware, async (req, res) => {
   try {
     const puzzle = await Puzzle.findByIdAndDelete(req.params.id);
     if (!puzzle) return res.status(404).json({ error: 'Puzzle not found' });
