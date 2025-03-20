@@ -72,7 +72,7 @@
 const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db");
-const cloudinary = require("cloudinary").v2;
+// const cloudinary = require("cloudinary").v2;
 const multer = require("multer");
 require("dotenv").config();
 
@@ -104,25 +104,6 @@ app.use(express.json());
 
 // Database connection
 connectDB();
-
-// Cloudinary configuration with error handling
-try {
-  if (
-    !process.env.CLOUDINARY_CLOUD_NAME ||
-    !process.env.CLOUDINARY_API_KEY ||
-    !process.env.CLOUDINARY_API_SECRET
-  ) {
-    throw new Error("Missing Cloudinary environment variables");
-  }
-  cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-  });
-  console.log("Cloudinary configured successfully");
-} catch (err) {
-  console.error("Cloudinary configuration failed:", err.message);
-}
 
 // Multer configuration
 const upload = multer({ storage: multer.memoryStorage() });
