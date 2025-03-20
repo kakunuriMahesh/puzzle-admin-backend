@@ -1,3 +1,5 @@
+// TODO: working fine but login error
+
 const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db");
@@ -9,9 +11,11 @@ const app = express();
 
 // CORS configuration
 const allowedOrigins = [
-  "http://localhost:5173",
-  "https://puzzle-admin-backend.vercel.app/",
-  // Add your frontend URL here
+  "http://localhost:5173", // Local dev frontend
+  "https://puzzle-admin-backend.vercel.app/", // Backend URL
+  "https://puzzle-user.vercel.app/", // Add your user frontend URL
+  "http://localhost:5000",
+  "http://localhost:3000"
 ];
 app.use(
   cors({
@@ -56,13 +60,10 @@ console.log("ENV Variables:", {
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY ? "Set" : "Missing",
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET ? "Set" : "Missing",
   ADMIN_MONGO_URI: process.env.ADMIN_MONGO_URI ? "Set" : "Missing",
-  NODE_ENV: process.env.NODE_ENV,
 });
 
-if (process.env.NODE_ENV !== "production") {
-  const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-}
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 module.exports = app;
 
