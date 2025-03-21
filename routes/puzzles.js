@@ -1,27 +1,12 @@
-// TODO: working fine but login error
-
 const express = require("express");
 const router = express.Router();
 const Puzzle = require("../models/Puzzle");
 const authMiddleware = require("../middleware/auth");
 const cloudinary = require("cloudinary").v2;
 
-// Public GET route (no auth)
-router.get("/", async (req, res) => {
-  try {
-    const { type, puzzleRange } = req.query;
-    const query = {};
-    if (type) query.type = type;
-    if (puzzleRange) query.puzzleRange = puzzleRange;
-    const puzzles = await Puzzle.find(query).sort({ createdAt: -1 });
-    res.json(puzzles);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+router.use(authMiddleware);
 
-// Protected routes (require auth)
-router.post("/", authMiddleware, async (req, res) => {
+router.post("/", async (req, res) => {
   try {
     let imageUrl = "";
     if (req.file) {
@@ -31,7 +16,7 @@ router.post("/", authMiddleware, async (req, res) => {
           if (error) throw error;
           imageUrl = result.secure_url;
         }
-      ).end(req.file.buffer);
+      ).end(req.file.buffer); // Use buffer instead of path
     }
 
     const puzzleData = {
@@ -42,7 +27,7 @@ router.post("/", authMiddleware, async (req, res) => {
       puzzleData.matchPairs = JSON.parse(puzzleData.matchPairs);
     }
     if (puzzleData.mcqOptions && typeof puzzleData.mcqOptions === "string") {
-      puzzleData.mcqOptions = JSON.parse(puzzleData.mcqOptions);
+      puzzleData.mcqOptions = JSON.parse(puzzleData.matchPairs);
     }
 
     const puzzle = new Puzzle(puzzleData);
@@ -53,7 +38,7 @@ router.post("/", authMiddleware, async (req, res) => {
   }
 });
 
-router.put("/:id", authMiddleware, async (req, res) => {
+router.put("/:id", async (req, res) => {
   try {
     let imageUrl = req.body.image;
     if (req.file) {
@@ -63,7 +48,7 @@ router.put("/:id", authMiddleware, async (req, res) => {
           if (error) throw error;
           imageUrl = result.secure_url;
         }
-      ).end(req.file.buffer);
+      ).end(req.file.buffer); // Use buffer instead of path
     }
 
     const puzzleData = {
@@ -85,7 +70,20 @@ router.put("/:id", authMiddleware, async (req, res) => {
   }
 });
 
-router.delete("/:id", authMiddleware, async (req, res) => {
+router.get("/", async (req, res) => {
+  try {
+    const { type, puzzleRange } = req.query;
+    const query = {};
+    if (type) query.type = type;
+    if (puzzleRange) query.puzzleRange = puzzleRange;
+    const puzzles = await Puzzle.find(query).sort({ createdAt: -1 });
+    res.json(puzzles);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.delete("/:id", async (req, res) => {
   try {
     const puzzle = await Puzzle.findByIdAndDelete(req.params.id);
     if (!puzzle) return res.status(404).json({ error: "Puzzle not found" });
