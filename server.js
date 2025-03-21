@@ -13,6 +13,7 @@ const allowedOrigins = [
   "http://localhost:3000",
   "https://puzzle-admin-backend.vercel.app/", // Optional, can remove if not using Vercel
   "https://puzzle-user.vercel.app/", // Update with Render frontend URL later
+  "https://puzzle-admin-backend.onrender.com/",
 ];
 app.use(
   cors({
