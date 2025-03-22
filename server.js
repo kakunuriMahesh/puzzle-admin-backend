@@ -11,8 +11,8 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
-  "https://puzzle-admin-backend.vercel.app/", // Optional, can remove if not using Vercel
-  "https://puzzle-user.vercel.app/", // Update with Render frontend URL later
+  "https://puzzle-admin-backend.vercel.app/",
+  "https://puzzle-user.vercel.app/",
   "https://puzzle-admin-backend.onrender.com/",
 ];
 app.use(
@@ -38,13 +38,13 @@ if (!adminDbUri) {
   console.error("ADMIN_MONGO_URI is not defined.");
   process.exit(1);
 }
+// Updated: Remove deprecated options and add timeout
 mongoose.connect(adminDbUri, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 10000, // Timeout after 10s if MongoDB is unreachable
 }).then(() => console.log("Connected to MongoDB"))
   .catch((err) => {
     console.error("MongoDB connection error:", err.message);
-    process.exit(1);
+    process.exit(1); // Exit to ensure Render logs the failure
   });
 
 // Cloudinary Configuration
@@ -77,10 +77,15 @@ console.log("ENV Variables:", {
   ADMIN_MONGO_URI: process.env.ADMIN_MONGO_URI ? "Set" : "Missing",
 });
 
-// Bind to Render’s PORT and host 0.0.0.0
+// Updated: Bind to 0.0.0.0 with error handling
 const PORT = process.env.PORT || 5000;
-// Updated: Explicitly bind to 0.0.0.0 for Render
-app.listen(PORT, "0.0.0.0", () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, "0.0.0.0", (err) => {
+  if (err) {
+    console.error("Failed to start server:", err.message);
+    process.exit(1);
+  }
+  console.log(`Server running on port ${PORT}`);
+});
 
 module.exports = app;
 
