@@ -14,6 +14,7 @@ const allowedOrigins = [
   "https://puzzle-admin-backend.vercel.app/",
   "https://puzzle-user.vercel.app/",
   "https://puzzle-admin-backend.onrender.com/",
+  "https://brown-wallaby-148031.hostingersite.com/" // hostinger
 ];
 app.use(
   cors({
