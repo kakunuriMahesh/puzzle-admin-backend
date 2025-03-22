@@ -13,8 +13,8 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:3000",
   "https://puzzle-admin-backend.onrender.com/",
-  "https://brown-wallaby-148031.hostingersite.com/", // hostinger
-  "https://silver-cattle-790959.hostingersite.com/",
+  "https://brown-wallaby-148031.hostingersite.com", // hostinger
+  "https://silver-cattle-790959.hostingersite.com",
   // "https://puzzle-admin-backend.vercel.app/",
   // "https://puzzle-user.vercel.app/",
 ];
